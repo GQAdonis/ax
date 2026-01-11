@@ -1,0 +1,112 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	"io"
+	"os"
+	"os/signal"
+	"syscall"
+
+	"github.com/google/gar/proto"
+	"github.com/google/uuid"
+	"github.com/spf13/cobra"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+)
+
+var (
+	triggerSessionID  string
+	triggerInput      string
+	triggerCheckpoint string
+	triggerServerAddr string
+)
+
+var triggerCmd = &cobra.Command{
+	Use:   "trigger",
+	Short: "Trigger a new session or resume an existing one",
+	Long: `Trigger a new agentic session or resume an existing one.
+If no session ID is provided, a new UUID will be generated.
+Use --checkpoint to resume from a specific checkpoint.`,
+	RunE: runTrigger,
+}
+
+func init() {
+	triggerCmd.Flags().StringVar(&triggerSessionID, "session-id", "", "Session ID (optional, generates UUID if not provided)")
+	triggerCmd.Flags().StringVar(&triggerInput, "input", "", "Input message to send")
+	triggerCmd.Flags().StringVar(&triggerCheckpoint, "checkpoint", "", "Resume from specific checkpoint UUID (empty for latest)")
+	triggerCmd.Flags().StringVar(&triggerServerAddr, "server", "", "gRPC controller server address (e.g., localhost:8494)")
+	triggerCmd.MarkFlagRequired("server")
+}
+
+func runTrigger(cmd *cobra.Command, args []string) error {
+	// Generate UUID if no session ID provided
+	if triggerSessionID == "" {
+		triggerSessionID = uuid.New().String()
+		fmt.Printf("Generated session ID: %s\n", triggerSessionID)
+	}
+
+	fmt.Printf("Triggering session: %s\n", triggerSessionID)
+
+	// Create input content
+	var inputs []*proto.Content
+	if triggerInput != "" {
+		inputs = []*proto.Content{
+			{
+				Role:     "user",
+				Type:     "text",
+				Mimetype: "text/plain",
+				Data:     triggerInput,
+			},
+		}
+	}
+
+	// Setup signal handling for graceful shutdown
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
+
+	go func() {
+		<-sigChan
+		fmt.Println("\nReceived interrupt, shutting down...")
+		cancel()
+	}()
+
+	// Connect to gRPC server
+	conn, err := grpc.NewClient(triggerServerAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return fmt.Errorf("failed to connect to server: %w", err)
+	}
+	defer conn.Close()
+
+	client := proto.NewGARServiceClient(conn)
+
+	stream, err := client.TriggerSession(ctx, &proto.TriggerSessionRequest{
+		SessionId:    triggerSessionID,
+		Inputs:       inputs,
+		CheckpointId: triggerCheckpoint,
+	})
+	if err != nil {
+		return fmt.Errorf("error triggering session: %w", err)
+	}
+
+	// Receive and print all responses
+	for {
+		resp, err := stream.Recv()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return fmt.Errorf("error receiving response: %w", err)
+		}
+
+		if resp.Output != nil {
+			fmt.Printf("[%s] %s\n", resp.State, resp.Output.Data)
+		}
+	}
+
+	fmt.Println("Session completed successfully")
+	return nil
+}
