@@ -214,7 +214,6 @@ func (s *Server) Serve(address string, opts ...grpc.ServerOption) error {
 	grpcServer := grpc.NewServer(opts...)
 	proto.RegisterGARServiceServer(grpcServer, s)
 
-	fmt.Printf("Controller server listening on %s\n", address)
 	if err := grpcServer.Serve(lis); err != nil {
 		return fmt.Errorf("failed to serve: %w", err)
 	}

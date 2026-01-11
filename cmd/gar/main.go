@@ -16,11 +16,11 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/google/uuid"
 	"github.com/google/gar/internal/controller"
 	"github.com/google/gar/internal/eventlog"
 	"github.com/google/gar/internal/server"
 	"github.com/google/gar/proto"
+	"github.com/google/uuid"
 )
 
 var (
@@ -295,7 +295,7 @@ func runRegister() {
 }
 
 func runServe() {
-	fmt.Printf("Starting controller server on %s\n", serveAddr)
+	fmt.Printf("Starting GAR server at %s...\n", serveAddr)
 
 	c, err := newController()
 	if err != nil {
