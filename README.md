@@ -102,13 +102,6 @@ gar list --server localhost:8494
 gar inspect --server localhost:8494 --session-id session123
 ```
 
-When you start a session, the gar controller:
-1. Receives your session request
-2. Calls the remote agent's `Process` RPC (bidirectional streaming)
-3. Streams input content to the agent
-4. Receives output content back from the agent
-5. Logs everything to the event log
-
 ## Usage
 
 ### GAR CLI
