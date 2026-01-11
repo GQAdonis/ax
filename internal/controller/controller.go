@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/google/gar/proto"
+	"github.com/google/uuid"
 )
 
 // Controller is the main controller that coordinates all components.

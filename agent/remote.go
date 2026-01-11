@@ -29,10 +29,10 @@ type RemoteAgent struct {
 // RemoteAgentConfig configures a remote agent client.
 type RemoteAgentConfig struct {
 	ID         string
-	Address    string             // gRPC server address (e.g., "localhost:50051")
-	Reconnect  bool               // Whether to automatically reconnect on failures
-	MaxRetries int                // Maximum number of retry attempts (0 = infinite)
-	DialOpts   []grpc.DialOption  // gRPC dial options for customizing the connection
+	Address    string            // gRPC server address (e.g., "localhost:50051")
+	Reconnect  bool              // Whether to automatically reconnect on failures
+	MaxRetries int               // Maximum number of retry attempts (0 = infinite)
+	DialOpts   []grpc.DialOption // gRPC dial options for customizing the connection
 }
 
 // NewRemoteAgent creates a new remote agent client.

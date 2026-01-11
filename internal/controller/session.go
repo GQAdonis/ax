@@ -5,9 +5,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/google/gar/internal/eventlog"
 	"github.com/google/gar/proto"
+	"github.com/google/uuid"
 )
 
 // Session represents an agentic loop execution session.

@@ -6,11 +6,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/google/gar/agent"
 	"github.com/google/gar/internal/controller"
 	"github.com/google/gar/internal/eventlog"
 	"github.com/google/gar/proto"
+	"github.com/google/uuid"
 )
 
 func main() {
