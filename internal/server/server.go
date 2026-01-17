@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/google/gar/internal/controller"
 	"github.com/google/gar/proto"
@@ -106,8 +107,8 @@ func (s *Server) GetSession(ctx context.Context, req *proto.GetSessionRequest) (
 			State:           session.State,
 			CurrentStep:     int32(session.CurrentStep),
 			ActiveAgents:    session.ActiveAgents,
-			CreatedAt:       session.CreatedAt.UnixMilli(),
-			UpdatedAt:       session.UpdatedAt.UnixMilli(),
+			CreatedAt:       timestamppb.New(session.CreatedAt),
+			UpdatedAt:       timestamppb.New(session.UpdatedAt),
 			MessageCount:    int32(len(session.MessageHistory)),
 			CheckpointCount: int32(len(session.CheckpointIDs)),
 		},

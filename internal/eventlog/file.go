@@ -115,11 +115,19 @@ func (e *FileEventLog) AppendContent(direction EventType, checkpointID string, c
 // AppendLifecycleEvent writes a lifecycle event to the event log.
 // Lifecycle events don't have checkpoint IDs.
 func (e *FileEventLog) AppendLifecycleEvent(event *proto.LifecycleEvent) error {
+	var timestampSeconds int64
+	var timestampNanos int32
+	if event.Timestamp != nil {
+		timestampSeconds = event.Timestamp.Seconds
+		timestampNanos = event.Timestamp.Nanos
+	}
+
 	data := map[string]interface{}{
-		"event_type": event.EventType,
-		"agent_id":   event.AgentId,
-		"timestamp":  event.Timestamp,
-		"metadata":   event.Metadata,
+		"event_type":        event.EventType,
+		"agent_id":          event.AgentId,
+		"timestamp_seconds": timestampSeconds,
+		"timestamp_nanos":   timestampNanos,
+		"metadata":          event.Metadata,
 	}
 	return e.Append(EventTypeLifecycle, "", data)
 }

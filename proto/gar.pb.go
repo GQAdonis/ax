@@ -9,6 +9,7 @@ package proto
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -154,7 +155,7 @@ type LifecycleEvent struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	EventType     string                 `protobuf:"bytes,1,opt,name=event_type,json=eventType,proto3" json:"event_type,omitempty"`                                                        // Event type: "PROGRESS", "HEARTBEAT"
 	AgentId       string                 `protobuf:"bytes,2,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`                                                              // Unique identifier of the agent
-	Timestamp     int64                  `protobuf:"varint,3,opt,name=timestamp,proto3" json:"timestamp,omitempty"`                                                                        // Unix timestamp in milliseconds
+	Timestamp     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=timestamp,proto3" json:"timestamp,omitempty"`                                                                         // Timestamp of the event
 	Metadata      map[string]string      `protobuf:"bytes,4,rep,name=metadata,proto3" json:"metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"` // Additional event metadata
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -204,11 +205,11 @@ func (x *LifecycleEvent) GetAgentId() string {
 	return ""
 }
 
-func (x *LifecycleEvent) GetTimestamp() int64 {
+func (x *LifecycleEvent) GetTimestamp() *timestamppb.Timestamp {
 	if x != nil {
 		return x.Timestamp
 	}
-	return 0
+	return nil
 }
 
 func (x *LifecycleEvent) GetMetadata() map[string]string {
@@ -506,8 +507,8 @@ type SessionInfo struct {
 	State           State                  `protobuf:"varint,2,opt,name=state,proto3,enum=proto.State" json:"state,omitempty"`
 	CurrentStep     int32                  `protobuf:"varint,3,opt,name=current_step,json=currentStep,proto3" json:"current_step,omitempty"`
 	ActiveAgents    []string               `protobuf:"bytes,4,rep,name=active_agents,json=activeAgents,proto3" json:"active_agents,omitempty"`
-	CreatedAt       int64                  `protobuf:"varint,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"` // Unix timestamp in milliseconds
-	UpdatedAt       int64                  `protobuf:"varint,6,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"` // Unix timestamp in milliseconds
+	CreatedAt       *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"` // Session creation time
+	UpdatedAt       *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"` // Last update time
 	MessageCount    int32                  `protobuf:"varint,7,opt,name=message_count,json=messageCount,proto3" json:"message_count,omitempty"`
 	CheckpointCount int32                  `protobuf:"varint,8,opt,name=checkpoint_count,json=checkpointCount,proto3" json:"checkpoint_count,omitempty"`
 	unknownFields   protoimpl.UnknownFields
@@ -572,18 +573,18 @@ func (x *SessionInfo) GetActiveAgents() []string {
 	return nil
 }
 
-func (x *SessionInfo) GetCreatedAt() int64 {
+func (x *SessionInfo) GetCreatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.CreatedAt
 	}
-	return 0
+	return nil
 }
 
-func (x *SessionInfo) GetUpdatedAt() int64 {
+func (x *SessionInfo) GetUpdatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.UpdatedAt
 	}
-	return 0
+	return nil
 }
 
 func (x *SessionInfo) GetMessageCount() int32 {
@@ -927,17 +928,17 @@ var File_proto_gar_proto protoreflect.FileDescriptor
 
 const file_proto_gar_proto_rawDesc = "" +
 	"\n" +
-	"\x0fproto/gar.proto\x12\x05proto\"a\n" +
+	"\x0fproto/gar.proto\x12\x05proto\x1a\x1fgoogle/protobuf/timestamp.proto\"a\n" +
 	"\aContent\x12\x12\n" +
 	"\x04role\x18\x01 \x01(\tR\x04role\x12\x12\n" +
 	"\x04type\x18\x02 \x01(\tR\x04type\x12\x1a\n" +
 	"\bmimetype\x18\x03 \x01(\tR\bmimetype\x12\x12\n" +
-	"\x04data\x18\x04 \x01(\tR\x04data\"\xe6\x01\n" +
+	"\x04data\x18\x04 \x01(\tR\x04data\"\x82\x02\n" +
 	"\x0eLifecycleEvent\x12\x1d\n" +
 	"\n" +
 	"event_type\x18\x01 \x01(\tR\teventType\x12\x19\n" +
-	"\bagent_id\x18\x02 \x01(\tR\aagentId\x12\x1c\n" +
-	"\ttimestamp\x18\x03 \x01(\x03R\ttimestamp\x12?\n" +
+	"\bagent_id\x18\x02 \x01(\tR\aagentId\x128\n" +
+	"\ttimestamp\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\x12?\n" +
 	"\bmetadata\x18\x04 \x03(\v2#.proto.LifecycleEvent.MetadataEntryR\bmetadata\x1a;\n" +
 	"\rMetadataEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -964,17 +965,17 @@ const file_proto_gar_proto_rawDesc = "" +
 	"\rcheckpoint_id\x18\x04 \x01(\tR\fcheckpointId\"2\n" +
 	"\x11GetSessionRequest\x12\x1d\n" +
 	"\n" +
-	"session_id\x18\x01 \x01(\tR\tsessionId\"\xa6\x02\n" +
+	"session_id\x18\x01 \x01(\tR\tsessionId\"\xde\x02\n" +
 	"\vSessionInfo\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\x12\"\n" +
 	"\x05state\x18\x02 \x01(\x0e2\f.proto.StateR\x05state\x12!\n" +
 	"\fcurrent_step\x18\x03 \x01(\x05R\vcurrentStep\x12#\n" +
-	"\ractive_agents\x18\x04 \x03(\tR\factiveAgents\x12\x1d\n" +
+	"\ractive_agents\x18\x04 \x03(\tR\factiveAgents\x129\n" +
 	"\n" +
-	"created_at\x18\x05 \x01(\x03R\tcreatedAt\x12\x1d\n" +
+	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\x06 \x01(\x03R\tupdatedAt\x12#\n" +
+	"updated_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12#\n" +
 	"\rmessage_count\x18\a \x01(\x05R\fmessageCount\x12)\n" +
 	"\x10checkpoint_count\x18\b \x01(\x05R\x0fcheckpointCount\"B\n" +
 	"\x12GetSessionResponse\x12,\n" +
@@ -1050,37 +1051,41 @@ var file_proto_gar_proto_goTypes = []any{
 	nil,                             // 16: proto.LifecycleEvent.MetadataEntry
 	nil,                             // 17: proto.HealthCheckResponse.MetadataEntry
 	nil,                             // 18: proto.RegisterAgentRequest.MetadataEntry
+	(*timestamppb.Timestamp)(nil),   // 19: google.protobuf.Timestamp
 }
 var file_proto_gar_proto_depIdxs = []int32{
-	16, // 0: proto.LifecycleEvent.metadata:type_name -> proto.LifecycleEvent.MetadataEntry
-	17, // 1: proto.HealthCheckResponse.metadata:type_name -> proto.HealthCheckResponse.MetadataEntry
-	1,  // 2: proto.TriggerSessionRequest.inputs:type_name -> proto.Content
-	0,  // 3: proto.TriggerSessionResponse.state:type_name -> proto.State
-	1,  // 4: proto.TriggerSessionResponse.output:type_name -> proto.Content
-	0,  // 5: proto.SessionInfo.state:type_name -> proto.State
-	8,  // 6: proto.GetSessionResponse.session:type_name -> proto.SessionInfo
-	18, // 7: proto.RegisterAgentRequest.metadata:type_name -> proto.RegisterAgentRequest.MetadataEntry
-	1,  // 8: proto.AgentService.Process:input_type -> proto.Content
-	2,  // 9: proto.AgentService.StreamLifecycle:input_type -> proto.LifecycleEvent
-	3,  // 10: proto.AgentService.HealthCheck:input_type -> proto.HealthCheckRequest
-	5,  // 11: proto.GARService.TriggerSession:input_type -> proto.TriggerSessionRequest
-	7,  // 12: proto.GARService.GetSession:input_type -> proto.GetSessionRequest
-	10, // 13: proto.GARService.ListSessions:input_type -> proto.ListSessionsRequest
-	12, // 14: proto.GARService.RegisterAgent:input_type -> proto.RegisterAgentRequest
-	14, // 15: proto.GARService.UnregisterAgent:input_type -> proto.UnregisterAgentRequest
-	1,  // 16: proto.AgentService.Process:output_type -> proto.Content
-	2,  // 17: proto.AgentService.StreamLifecycle:output_type -> proto.LifecycleEvent
-	4,  // 18: proto.AgentService.HealthCheck:output_type -> proto.HealthCheckResponse
-	6,  // 19: proto.GARService.TriggerSession:output_type -> proto.TriggerSessionResponse
-	9,  // 20: proto.GARService.GetSession:output_type -> proto.GetSessionResponse
-	11, // 21: proto.GARService.ListSessions:output_type -> proto.ListSessionsResponse
-	13, // 22: proto.GARService.RegisterAgent:output_type -> proto.RegisterAgentResponse
-	15, // 23: proto.GARService.UnregisterAgent:output_type -> proto.UnregisterAgentResponse
-	16, // [16:24] is the sub-list for method output_type
-	8,  // [8:16] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	19, // 0: proto.LifecycleEvent.timestamp:type_name -> google.protobuf.Timestamp
+	16, // 1: proto.LifecycleEvent.metadata:type_name -> proto.LifecycleEvent.MetadataEntry
+	17, // 2: proto.HealthCheckResponse.metadata:type_name -> proto.HealthCheckResponse.MetadataEntry
+	1,  // 3: proto.TriggerSessionRequest.inputs:type_name -> proto.Content
+	0,  // 4: proto.TriggerSessionResponse.state:type_name -> proto.State
+	1,  // 5: proto.TriggerSessionResponse.output:type_name -> proto.Content
+	0,  // 6: proto.SessionInfo.state:type_name -> proto.State
+	19, // 7: proto.SessionInfo.created_at:type_name -> google.protobuf.Timestamp
+	19, // 8: proto.SessionInfo.updated_at:type_name -> google.protobuf.Timestamp
+	8,  // 9: proto.GetSessionResponse.session:type_name -> proto.SessionInfo
+	18, // 10: proto.RegisterAgentRequest.metadata:type_name -> proto.RegisterAgentRequest.MetadataEntry
+	1,  // 11: proto.AgentService.Process:input_type -> proto.Content
+	2,  // 12: proto.AgentService.StreamLifecycle:input_type -> proto.LifecycleEvent
+	3,  // 13: proto.AgentService.HealthCheck:input_type -> proto.HealthCheckRequest
+	5,  // 14: proto.GARService.TriggerSession:input_type -> proto.TriggerSessionRequest
+	7,  // 15: proto.GARService.GetSession:input_type -> proto.GetSessionRequest
+	10, // 16: proto.GARService.ListSessions:input_type -> proto.ListSessionsRequest
+	12, // 17: proto.GARService.RegisterAgent:input_type -> proto.RegisterAgentRequest
+	14, // 18: proto.GARService.UnregisterAgent:input_type -> proto.UnregisterAgentRequest
+	1,  // 19: proto.AgentService.Process:output_type -> proto.Content
+	2,  // 20: proto.AgentService.StreamLifecycle:output_type -> proto.LifecycleEvent
+	4,  // 21: proto.AgentService.HealthCheck:output_type -> proto.HealthCheckResponse
+	6,  // 22: proto.GARService.TriggerSession:output_type -> proto.TriggerSessionResponse
+	9,  // 23: proto.GARService.GetSession:output_type -> proto.GetSessionResponse
+	11, // 24: proto.GARService.ListSessions:output_type -> proto.ListSessionsResponse
+	13, // 25: proto.GARService.RegisterAgent:output_type -> proto.RegisterAgentResponse
+	15, // 26: proto.GARService.UnregisterAgent:output_type -> proto.UnregisterAgentResponse
+	19, // [19:27] is the sub-list for method output_type
+	11, // [11:19] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_proto_gar_proto_init() }

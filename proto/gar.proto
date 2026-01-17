@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package proto;
 
+import "google/protobuf/timestamp.proto";
+
 option go_package = "github.com/google/gar/proto";
 
 // Content represents a message with role, type, mimetype, and data fields
@@ -16,7 +18,7 @@ message Content {
 message LifecycleEvent {
   string event_type = 1;            // Event type: "PROGRESS", "HEARTBEAT"
   string agent_id = 2;               // Unique identifier of the agent
-  int64 timestamp = 3;               // Unix timestamp in milliseconds
+  google.protobuf.Timestamp timestamp = 3;  // Timestamp of the event
   map<string, string> metadata = 4;  // Additional event metadata
 }
 
@@ -80,8 +82,8 @@ message SessionInfo {
   State state = 2;
   int32 current_step = 3;
   repeated string active_agents = 4;
-  int64 created_at = 5;   // Unix timestamp in milliseconds
-  int64 updated_at = 6;   // Unix timestamp in milliseconds
+  google.protobuf.Timestamp created_at = 5;  // Session creation time
+  google.protobuf.Timestamp updated_at = 6;  // Last update time
   int32 message_count = 7;
   int32 checkpoint_count = 8;
 }

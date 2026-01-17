@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/google/gar/proto"
 )
@@ -74,7 +75,7 @@ func (s *server) StreamLifecycle(stream proto.AgentService_StreamLifecycleServer
 	if err := stream.Send(&proto.LifecycleEvent{
 		EventType: "PROGRESS",
 		AgentId:   s.agentID,
-		Timestamp: time.Now().UnixMilli(),
+		Timestamp: timestamppb.Now(),
 		Metadata: map[string]string{
 			"status": "started",
 		},
@@ -92,7 +93,7 @@ func (s *server) StreamLifecycle(stream proto.AgentService_StreamLifecycleServer
 			event := &proto.LifecycleEvent{
 				EventType: "PROGRESS",
 				AgentId:   s.agentID,
-				Timestamp: time.Now().UnixMilli(),
+				Timestamp: timestamppb.Now(),
 				Metadata: map[string]string{
 					"status": "healthy",
 				},

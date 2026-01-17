@@ -5,6 +5,8 @@ import (
 	"sync"
 	"time"
 
+	"google.golang.org/protobuf/types/known/timestamppb"
+
 	"github.com/google/gar/internal/eventlog"
 	"github.com/google/gar/proto"
 	"github.com/google/uuid"
@@ -158,10 +160,24 @@ func (sm *SessionManager) LoadSessionFromCheckpoint(sessionID string, checkpoint
 			}
 
 		case eventlog.EventTypeLifecycle:
+			// Extract timestamp seconds and nanos
+			var timestamp *timestamppb.Timestamp
+			if seconds, ok := entry.Data["timestamp_seconds"]; ok {
+				timestampSeconds := int64(seconds.(float64))
+				timestampNanos := int32(0)
+				if nanos, ok := entry.Data["timestamp_nanos"]; ok {
+					timestampNanos = int32(nanos.(float64))
+				}
+				timestamp = &timestamppb.Timestamp{
+					Seconds: timestampSeconds,
+					Nanos:   timestampNanos,
+				}
+			}
+
 			event := &proto.LifecycleEvent{
 				EventType: getStringFromData(entry.Data, "event_type"),
 				AgentId:   getStringFromData(entry.Data, "agent_id"),
-				Timestamp: int64(entry.Data["timestamp"].(float64)),
+				Timestamp: timestamp,
 			}
 			session.LifecycleEvents = append(session.LifecycleEvents, event)
 		}

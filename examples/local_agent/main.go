@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"google.golang.org/protobuf/types/known/timestamppb"
+
 	"github.com/google/gar/agent"
 	"github.com/google/gar/internal/controller"
 	"github.com/google/gar/internal/eventlog"
@@ -99,7 +101,7 @@ func createEchoAgent(id string) (*agent.LocalAgent, error) {
 		if err := handler(&proto.LifecycleEvent{
 			EventType: "PROGRESS",
 			AgentId:   id,
-			Timestamp: time.Now().UnixMilli(),
+			Timestamp: timestamppb.Now(),
 			Metadata: map[string]string{
 				"status": "started",
 			},
@@ -117,7 +119,7 @@ func createEchoAgent(id string) (*agent.LocalAgent, error) {
 				if err := handler(&proto.LifecycleEvent{
 					EventType: "PROGRESS",
 					AgentId:   id,
-					Timestamp: time.Now().UnixMilli(),
+					Timestamp: timestamppb.Now(),
 					Metadata: map[string]string{
 						"status": "processing",
 					},
