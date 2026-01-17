@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -14,17 +15,14 @@ import (
 )
 
 func main() {
-	fmt.Println("Local Agent Example")
-	fmt.Println("===================")
+	ctx := context.Background()
 
 	// Create a local echo agent
 	echoAgent, err := createEchoAgent("local-echo-agent")
 	if err != nil {
-		fmt.Printf("Error creating agent: %v\n", err)
-		return
+		log.Fatalf("Error creating agent: %v\n", err)
 	}
 
-	// Create controller
 	c, err := controller.New(controller.Config{
 		EventLogFactory: func(sessionID string) (eventlog.EventLog, error) {
 			return eventlog.NewFileEventLog(eventlog.FileConfig{
@@ -36,23 +34,21 @@ func main() {
 		HealthCheckInterval: 30 * time.Second,
 	})
 	if err != nil {
-		fmt.Printf("Error creating controller: %v\n", err)
-		return
+		log.Fatalf("Error creating controller: %v\n", err)
 	}
 	defer c.Close()
 
-	// Register the local agent
-	if err := c.Registry().RegisterLocal(echoAgent, "Echo Agent", "Simple echo agent that uppercases input", map[string]string{
-		"type":    "echo",
-		"version": "1.0",
-	}); err != nil {
-		fmt.Printf("Error registering agent: %v\n", err)
-		return
+	if err := c.Registry().RegisterLocal(
+		echoAgent,
+		"Echo Agent",
+		"Simple echo agent that uppercases input",
+		map[string]string{
+			"version": "1.0",
+		}); err != nil {
+		log.Fatalf("Error registering agent: %v\n", err)
 	}
 
 	fmt.Println("Agent registered successfully")
-
-	// Create input content
 	inputs := []*proto.Content{
 		{
 			Role:     "user",
@@ -64,29 +60,8 @@ func main() {
 
 	// Trigger a session
 	sessionID := uuid.New().String()
-	fmt.Printf("\nTriggering session: %s\n", sessionID)
-
-	ctx := context.Background()
 	if err := c.TriggerSession(ctx, sessionID, inputs, ""); err != nil {
-		fmt.Printf("Error triggering session: %v\n", err)
-		return
-	}
-
-	fmt.Println("\nSession completed!")
-
-	// Inspect the session
-	session, err := c.GetSession(sessionID)
-	if err != nil {
-		fmt.Printf("Error getting session: %v\n", err)
-		return
-	}
-
-	fmt.Printf("\nSession state: %s\n", session.State)
-	fmt.Printf("Total messages: %d\n", len(session.MessageHistory))
-
-	fmt.Println("\nMessage history:")
-	for i, msg := range session.MessageHistory {
-		fmt.Printf("  %d. [%s] %s: %s\n", i+1, msg.Type, msg.Role, msg.Data)
+		log.Fatalf("Error triggering session: %v\n", err)
 	}
 }
 
