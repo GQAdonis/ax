@@ -7,11 +7,11 @@ all: proto build
 build:
 	@echo "Building gar..."
 	@mkdir -p bin
-	@go build -o bin/gar cmd/gar/main.go
+	@go build -o bin/gar ./cmd/gar
 	@echo "Building local agent example..."
-	@go build -o bin/local_agent examples/local_agent/main.go
+	@go build -o bin/local_agent ./examples/local_agent
 	@echo "Building remote agent example..."
-	@go build -o bin/remote_agent examples/remote_agent/main.go
+	@go build -o bin/remote_agent ./examples/remote_agent
 	@echo "Build complete!"
 
 # Generate protobuf code
