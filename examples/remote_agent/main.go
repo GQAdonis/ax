@@ -119,11 +119,6 @@ func (s *server) HealthCheck(ctx context.Context, req *proto.HealthCheckRequest)
 	return &proto.HealthCheckResponse{
 		Healthy: true,
 		Message: "Agent is healthy",
-		Metadata: map[string]string{
-			"agent_id": s.agentID,
-			"status":   "running",
-			"uptime":   "active",
-		},
 	}, nil
 }
 
