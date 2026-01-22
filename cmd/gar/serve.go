@@ -45,11 +45,6 @@ func runServe(cmd *cobra.Command, args []string) error {
 	}
 
 	fmt.Printf("Starting GAR server at %s...\n", cfg.Server.Address)
-	fmt.Printf("Event log directory: %s\n", cfg.EventLog.Dir)
-	fmt.Printf("Max steps: %d\n", cfg.Controller.MaxSteps)
-	fmt.Printf("Health check interval: %s\n", cfg.Controller.HealthCheckInterval)
-
-	// Create controller with config
 	c, err := newControllerFromConfig(ctx, cfg)
 	if err != nil {
 		return fmt.Errorf("error creating controller: %w", err)
