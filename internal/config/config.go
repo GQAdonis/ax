@@ -11,10 +11,11 @@ import (
 
 // Config represents the main configuration for GAR server.
 type Config struct {
-	Server        ServerConfig        `yaml:"server"`
-	EventLog      EventLogConfig      `yaml:"eventlog"`
-	Controller    ControllerConfig    `yaml:"controller"`
-	GeminiPlanner GeminiPlannerConfig `yaml:"gemini_planner,omitempty"`
+	Server              ServerConfig        `yaml:"server"`
+	EventLog            EventLogConfig      `yaml:"eventlog"`
+	MaxSteps            int                 `yaml:"max_steps"`             // Maximum steps per trigger
+	HealthCheckInterval time.Duration       `yaml:"health_check_interval"` // Health check interval for agents
+	GeminiPlanner       GeminiPlannerConfig `yaml:"gemini_planner,omitempty"`
 }
 
 // ServerConfig configures the gRPC server.
@@ -76,11 +77,11 @@ func (c *Config) setDefaults() {
 	}
 
 	// Controller defaults
-	if c.Controller.MaxSteps == 0 {
-		c.Controller.MaxSteps = 100
+	if c.MaxSteps == 0 {
+		c.MaxSteps = 100
 	}
-	if c.Controller.HealthCheckInterval == 0 {
-		c.Controller.HealthCheckInterval = 30 * time.Second
+	if c.HealthCheckInterval == 0 {
+		c.HealthCheckInterval = 30 * time.Second
 	}
 
 	// Gemini planner defaults are handled in the controller package
@@ -94,11 +95,11 @@ func (c *Config) Validate() error {
 	if c.EventLog.Dir == "" {
 		return fmt.Errorf("eventlog.dir is required")
 	}
-	if c.Controller.MaxSteps <= 0 {
-		return fmt.Errorf("controller.max_steps must be positive")
+	if c.MaxSteps <= 0 {
+		return fmt.Errorf("max_steps must be positive")
 	}
-	if c.Controller.HealthCheckInterval <= 0 {
-		return fmt.Errorf("controller.health_check_interval must be positive")
+	if c.HealthCheckInterval <= 0 {
+		return fmt.Errorf("health_check_interval must be positive")
 	}
 	return nil
 }

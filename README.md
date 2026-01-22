@@ -183,10 +183,11 @@ server:
 eventlog:
   dir: "eventlog"
 
-controller:
-  # Maximum steps per trigger
-  max_steps: 50
-  health_check_interval: 30s
+# Maximum steps per trigger
+max_steps: 50
+
+# Health check interval for agents
+health_check_interval: 30s
 ```
 
 Example:

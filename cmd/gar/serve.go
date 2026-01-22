@@ -86,8 +86,8 @@ func newControllerFromConfig(ctx context.Context, cfg *config.Config) (*controll
 	// Gemini config can be customized via environment variables (GEMINI_API_KEY, GAR_GEMINI_MODEL)
 	controllerConfig := controller.Config{
 		EventLogFactory:     eventLogFactory,
-		MaxSteps:            cfg.Controller.MaxSteps,
-		HealthCheckInterval: cfg.Controller.HealthCheckInterval,
+		MaxSteps:            cfg.MaxSteps,
+		HealthCheckInterval: cfg.HealthCheckInterval,
 	}
 
 	// Create controller
