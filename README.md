@@ -419,6 +419,7 @@ gar trigger \
 - [ ] Advanced load balancing strategies
 - [ ] Make checkpointing optional
 - [ ] gar deploy from container
+- [ ] Fork session when resuming from a checkpoint that isn't the latest
 - [ ] Web UI
 
 ## License
