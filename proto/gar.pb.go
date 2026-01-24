@@ -84,10 +84,11 @@ func (State) EnumDescriptor() ([]byte, []int) {
 // Content represents a message with role, type, mimetype, and data fields
 type Content struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Role          string                 `protobuf:"bytes,1,opt,name=role,proto3" json:"role,omitempty"`         // The role of the content (e.g., "user", "assistant", "system")
-	Type          string                 `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"`         // The type of content (e.g., "text", "image")
-	Mimetype      string                 `protobuf:"bytes,3,opt,name=mimetype,proto3" json:"mimetype,omitempty"` // MIME type of the data (e.g., "text/plain", "image/png")
-	Data          string                 `protobuf:"bytes,4,opt,name=data,proto3" json:"data,omitempty"`         // The actual content data
+	Role          string                 `protobuf:"bytes,1,opt,name=role,proto3" json:"role,omitempty"`                                     // The role of the content (e.g., "user", "assistant", "system")
+	Type          string                 `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"`                                     // The type of content (e.g., "text", "image")
+	Mimetype      string                 `protobuf:"bytes,3,opt,name=mimetype,proto3" json:"mimetype,omitempty"`                             // MIME type of the data (e.g., "text/plain", "image/png")
+	Data          string                 `protobuf:"bytes,4,opt,name=data,proto3" json:"data,omitempty"`                                     // The actual content data
+	CheckpointId  string                 `protobuf:"bytes,5,opt,name=checkpoint_id,json=checkpointId,proto3" json:"checkpoint_id,omitempty"` // Optional: Checkpoint ID for this content
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -146,6 +147,13 @@ func (x *Content) GetMimetype() string {
 func (x *Content) GetData() string {
 	if x != nil {
 		return x.Data
+	}
+	return ""
+}
+
+func (x *Content) GetCheckpointId() string {
+	if x != nil {
+		return x.CheckpointId
 	}
 	return ""
 }
@@ -305,8 +313,8 @@ func (x *HealthCheckResponse) GetMessage() string {
 type TriggerSessionRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	SessionId     string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`          // Unique session identifier
-	Inputs        []*Content             `protobuf:"bytes,2,rep,name=inputs,proto3" json:"inputs,omitempty"`                                 // Input content to process
-	CheckpointId  string                 `protobuf:"bytes,3,opt,name=checkpoint_id,json=checkpointId,proto3" json:"checkpoint_id,omitempty"` // Optional: Resume from specific checkpoint UUID (empty for latest)
+	CheckpointId  string                 `protobuf:"bytes,2,opt,name=checkpoint_id,json=checkpointId,proto3" json:"checkpoint_id,omitempty"` // Optional: Resume from specific checkpoint UUID (empty for latest)
+	Inputs        []*Content             `protobuf:"bytes,3,rep,name=inputs,proto3" json:"inputs,omitempty"`                                 // Input content to process
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -348,13 +356,6 @@ func (x *TriggerSessionRequest) GetSessionId() string {
 	return ""
 }
 
-func (x *TriggerSessionRequest) GetInputs() []*Content {
-	if x != nil {
-		return x.Inputs
-	}
-	return nil
-}
-
 func (x *TriggerSessionRequest) GetCheckpointId() string {
 	if x != nil {
 		return x.CheckpointId
@@ -362,12 +363,18 @@ func (x *TriggerSessionRequest) GetCheckpointId() string {
 	return ""
 }
 
+func (x *TriggerSessionRequest) GetInputs() []*Content {
+	if x != nil {
+		return x.Inputs
+	}
+	return nil
+}
+
 // TriggerSessionResponse contains the result of triggering a session
 type TriggerSessionResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	State         State                  `protobuf:"varint,1,opt,name=state,proto3,enum=proto.State" json:"state,omitempty"` // Session state
-	Output        *Content               `protobuf:"bytes,2,opt,name=output,proto3" json:"output,omitempty"`
-	CheckpointId  string                 `protobuf:"bytes,3,opt,name=checkpoint_id,json=checkpointId,proto3" json:"checkpoint_id,omitempty"` // Checkpoint UUID for this response
+	Output        *Content               `protobuf:"bytes,2,opt,name=output,proto3" json:"output,omitempty"`                 // Output content
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -414,13 +421,6 @@ func (x *TriggerSessionResponse) GetOutput() *Content {
 		return x.Output
 	}
 	return nil
-}
-
-func (x *TriggerSessionResponse) GetCheckpointId() string {
-	if x != nil {
-		return x.CheckpointId
-	}
-	return ""
 }
 
 // GetSessionRequest for retrieving session details
@@ -806,12 +806,13 @@ var File_proto_gar_proto protoreflect.FileDescriptor
 
 const file_proto_gar_proto_rawDesc = "" +
 	"\n" +
-	"\x0fproto/gar.proto\x12\x05proto\x1a\x1fgoogle/protobuf/timestamp.proto\"a\n" +
+	"\x0fproto/gar.proto\x12\x05proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x86\x01\n" +
 	"\aContent\x12\x12\n" +
 	"\x04role\x18\x01 \x01(\tR\x04role\x12\x12\n" +
 	"\x04type\x18\x02 \x01(\tR\x04type\x12\x1a\n" +
 	"\bmimetype\x18\x03 \x01(\tR\bmimetype\x12\x12\n" +
-	"\x04data\x18\x04 \x01(\tR\x04data\"\xe7\x01\n" +
+	"\x04data\x18\x04 \x01(\tR\x04data\x12#\n" +
+	"\rcheckpoint_id\x18\x05 \x01(\tR\fcheckpointId\"\xe7\x01\n" +
 	"\x0eLifecycleEvent\x12\x1d\n" +
 	"\n" +
 	"event_type\x18\x01 \x01(\tR\teventType\x128\n" +
@@ -826,13 +827,12 @@ const file_proto_gar_proto_rawDesc = "" +
 	"\amessage\x18\x02 \x01(\tR\amessage\"\x83\x01\n" +
 	"\x15TriggerSessionRequest\x12\x1d\n" +
 	"\n" +
-	"session_id\x18\x01 \x01(\tR\tsessionId\x12&\n" +
-	"\x06inputs\x18\x02 \x03(\v2\x0e.proto.ContentR\x06inputs\x12#\n" +
-	"\rcheckpoint_id\x18\x03 \x01(\tR\fcheckpointId\"\x89\x01\n" +
+	"session_id\x18\x01 \x01(\tR\tsessionId\x12#\n" +
+	"\rcheckpoint_id\x18\x02 \x01(\tR\fcheckpointId\x12&\n" +
+	"\x06inputs\x18\x03 \x03(\v2\x0e.proto.ContentR\x06inputs\"d\n" +
 	"\x16TriggerSessionResponse\x12\"\n" +
 	"\x05state\x18\x01 \x01(\x0e2\f.proto.StateR\x05state\x12&\n" +
-	"\x06output\x18\x02 \x01(\v2\x0e.proto.ContentR\x06output\x12#\n" +
-	"\rcheckpoint_id\x18\x03 \x01(\tR\fcheckpointId\"2\n" +
+	"\x06output\x18\x02 \x01(\v2\x0e.proto.ContentR\x06output\"2\n" +
 	"\x11GetSessionRequest\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\"\xbf\x02\n" +

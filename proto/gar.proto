@@ -12,6 +12,7 @@ message Content {
   string type = 2;      // The type of content (e.g., "text", "image")
   string mimetype = 3;  // MIME type of the data (e.g., "text/plain", "image/png")
   string data = 4;      // The actual content data
+  string checkpoint_id = 5;  // Optional: Checkpoint ID for this content
 
   // TODO: Replace Content with Interactions Content.
 }
@@ -57,15 +58,14 @@ enum State {
 // TriggerSessionRequest for triggering a new session
 message TriggerSessionRequest {
   string session_id = 1;               // Unique session identifier
-  repeated Content inputs = 2;         // Input content to process
-  string checkpoint_id = 3;            // Optional: Resume from specific checkpoint UUID (empty for latest)
+  string checkpoint_id = 2;            // Optional: Resume from specific checkpoint UUID (empty for latest)
+  repeated Content inputs = 3;         // Input content to process
 }
 
 // TriggerSessionResponse contains the result of triggering a session
 message TriggerSessionResponse {
   State state = 1;     // Session state
-  Content output = 2;
-  string checkpoint_id = 3;   // Checkpoint UUID for this response
+  Content output = 2;  // Output content
 }
 
 // GetSessionRequest for retrieving session details

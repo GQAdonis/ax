@@ -65,16 +65,9 @@ func (s *Server) TriggerSession(req *proto.TriggerSessionRequest, stream grpc.Se
 		return err
 	}
 
-	// Get the latest checkpoint ID if available
-	latestCheckpointID := ""
-	if len(session.CheckpointIDs) > 0 {
-		latestCheckpointID = session.CheckpointIDs[len(session.CheckpointIDs)-1]
-	}
-
 	// Send final success response
 	return stream.Send(&proto.TriggerSessionResponse{
 		State:        session.State,
-		CheckpointId: latestCheckpointID,
 	})
 }
 

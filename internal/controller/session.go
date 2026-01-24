@@ -220,20 +220,32 @@ func (sm *SessionManager) CloseAll() {
 	}
 }
 
-// WriteContentIn appends an incoming content message to the session with a new checkpoint.
+// WriteContentIn appends an incoming content message to the session.
+// Creates a checkpoint only if checkpoint_id is provided in the content.
 func (s *Session) WriteContentIn(ctx context.Context, content *proto.Content) (string, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	// Generate a new checkpoint UUID
-	checkpointID := uuid.New().String()
+	// Use checkpoint_id from content if provided
+	checkpointID := content.CheckpointId
+
+	if checkpointID != "" {
+		// TODO(jbd): Optimize the lookup.
+		for _, existingID := range s.CheckpointIDs {
+			if existingID == checkpointID {
+				return "", fmt.Errorf("checkpoint %s already exists", checkpointID)
+			}
+		}
+	}
 
 	if err := s.eventLog.AppendContent(ctx, eventlog.EventTypeContentIn, checkpointID, content); err != nil {
 		return "", err
 	}
 
 	s.MessageHistory = append(s.MessageHistory, content)
-	s.CheckpointIDs = append(s.CheckpointIDs, checkpointID)
+	if checkpointID != "" {
+		s.CheckpointIDs = append(s.CheckpointIDs, checkpointID)
+	}
 	s.UpdatedAt = time.Now()
 	return checkpointID, nil
 }
