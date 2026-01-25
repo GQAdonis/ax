@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/google/gar/proto"
-	"github.com/google/uuid"
 )
 
 // Controller is the main controller that coordinates all components.
@@ -70,7 +69,7 @@ func New(ctx context.Context, config Config) (*Controller, error) {
 func (d *Controller) TriggerSession(ctx context.Context, sessionID string, inputs []*proto.Content, checkpointID string) error {
 	// Generate UUID if no session ID provided
 	if sessionID == "" {
-		sessionID = uuid.New().String()
+		return fmt.Errorf("session_id is required")
 	}
 
 	// Check if session already exists
