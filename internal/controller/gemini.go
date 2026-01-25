@@ -12,6 +12,8 @@ import (
 	"google.golang.org/api/option"
 )
 
+const noActionAgentID = "no_action_agent"
+
 // GeminiPlannerConfig configures the Gemini-based planner.
 type GeminiPlannerConfig struct {
 	APIKey        string        // Google AI API key (for programmatic use only; if empty, uses GEMINI_API_KEY env var - recommended)
@@ -97,7 +99,7 @@ Guidelines:
 		tools = append(tools, &genai.Tool{
 			FunctionDeclarations: []*genai.FunctionDeclaration{
 				{
-					Name:        "no_action",
+					Name:        noActionAgentID,
 					Description: "Call this when no further action is needed and the task is complete",
 					Parameters: &genai.Schema{
 						Type: genai.TypeObject,
@@ -145,7 +147,7 @@ Guidelines:
 		for _, part := range resp.Candidates[0].Content.Parts {
 			if fc, ok := part.(genai.FunctionCall); ok {
 				// Check if it's the no_action function
-				if fc.Name == "no_action" {
+				if fc.Name == noActionAgentID {
 					return nil, nil // No more tasks
 				}
 
