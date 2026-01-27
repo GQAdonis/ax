@@ -71,14 +71,6 @@ func (s *server) Process(stream proto.AgentService_ProcessServer) error {
 func (s *server) StreamLifecycle(stream proto.AgentService_StreamLifecycleServer) error {
 	log.Println("Lifecycle stream started")
 
-	// Send initial PROGRESS event
-	if err := stream.Send(&proto.LifecycleEvent{
-		EventType: "PROGRESS",
-		Timestamp: timestamppb.Now(),
-	}); err != nil {
-		return err
-	}
-
 	// Send periodic heartbeats
 	ticker := time.NewTicker(10 * time.Second)
 	defer ticker.Stop()
@@ -87,7 +79,7 @@ func (s *server) StreamLifecycle(stream proto.AgentService_StreamLifecycleServer
 		select {
 		case <-ticker.C:
 			event := &proto.LifecycleEvent{
-				EventType: "PROGRESS",
+				EventType: "HEARTBEAT",
 				Timestamp: timestamppb.Now(),
 			}
 
