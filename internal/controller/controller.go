@@ -24,6 +24,8 @@ type Config struct {
 	PlanFunc        PlanFunc
 	EvaluateFunc    EvaluateFunc
 
+	// TODO(jbd): Add CompactionFunc.
+
 	HealthCheckInterval time.Duration
 	MaxSteps            int
 }
