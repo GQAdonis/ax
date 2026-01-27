@@ -62,7 +62,11 @@ func main() {
 
 	// Trigger a session
 	sessionID := uuid.New().String()
-	if err := c.TriggerSession(ctx, sessionID, inputs); err != nil {
+	handler := agent.OutputHandler(func(content *proto.Content) error {
+		fmt.Printf("Output received: %s\n", content.Data)
+		return nil
+	})
+	if err := c.TriggerSession(ctx, sessionID, inputs, handler); err != nil {
 		log.Fatalf("Error triggering session: %v\n", err)
 	}
 }

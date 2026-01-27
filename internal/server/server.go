@@ -11,6 +11,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"github.com/google/gar/agent"
 	"github.com/google/gar/internal/config"
 	"github.com/google/gar/internal/controller"
 	"github.com/google/gar/proto"
@@ -50,11 +51,19 @@ func (s *Server) TriggerSession(req *proto.TriggerSessionRequest, stream grpc.Se
 		return err
 	}
 
-	// TODO(jbd): Return outputs.
+	// Create output handler to stream outputs back to client
+	outputHandler := agent.OutputHandler(func(content *proto.Content) error {
+		return stream.Send(&proto.TriggerSessionResponse{
+			SessionId: sessionID,
+			State:     proto.State_STATE_RUNNING,
+			Output:    content,
+		})
+	})
+
 	if checkpointID == "" {
-		return s.controller.TriggerSession(stream.Context(), sessionID, inputs)
+		return s.controller.TriggerSession(stream.Context(), sessionID, inputs, outputHandler)
 	}
-	return s.controller.TriggerForkedSession(stream.Context(), sessionID, checkpointID, inputs)
+	return s.controller.TriggerForkedSession(stream.Context(), sessionID, checkpointID, inputs, outputHandler)
 }
 
 // GetSession retrieves session details.

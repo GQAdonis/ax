@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/gar/agent"
 	"github.com/google/gar/proto"
 )
 
@@ -68,7 +69,7 @@ func New(ctx context.Context, config Config) (*Controller, error) {
 // If sessionID is empty, a UUID will be generated.
 // If the session already exists, it will be resumed with optional new inputs.
 // If checkpointID is provided, resumes from that specific checkpoint instead of the latest.
-func (d *Controller) TriggerSession(ctx context.Context, sessionID string, inputs []*proto.Content) error {
+func (d *Controller) TriggerSession(ctx context.Context, sessionID string, inputs []*proto.Content, handler agent.OutputHandler) error {
 	// Generate UUID if no session ID provided
 	if sessionID == "" {
 		return fmt.Errorf("session_id is required")
@@ -97,7 +98,7 @@ func (d *Controller) TriggerSession(ctx context.Context, sessionID string, input
 	return nil
 }
 
-func (d *Controller) TriggerForkedSession(ctx context.Context, sessionID string, checkpointID string, inputs []*proto.Content) error {
+func (d *Controller) TriggerForkedSession(ctx context.Context, sessionID string, checkpointID string, inputs []*proto.Content, handler agent.OutputHandler) error {
 	if sessionID == "" {
 		return fmt.Errorf("session_id is required")
 	}
