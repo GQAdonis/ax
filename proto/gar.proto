@@ -48,11 +48,8 @@ service AgentService {
 // State represents the state of a session
 enum State {
   STATE_UNSPECIFIED = 0;  // Unspecified state
-  STATE_STARTING = 1;
-  STATE_RUNNING = 2;      // Session is currently running
-  STATE_COMPLETED = 3;    // Session completed successfully
-  STATE_FAILED = 4;       // Session failed
-  STATE_UNKNOWN = 5;
+  STATE_RUNNING = 1;      // Session is currently running
+  STATE_FAILED = 2;       // Session failed
 }
 
 // TriggerSessionRequest for triggering a new session

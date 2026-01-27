@@ -27,30 +27,21 @@ type State int32
 
 const (
 	State_STATE_UNSPECIFIED State = 0 // Unspecified state
-	State_STATE_STARTING    State = 1
-	State_STATE_RUNNING     State = 2 // Session is currently running
-	State_STATE_COMPLETED   State = 3 // Session completed successfully
-	State_STATE_FAILED      State = 4 // Session failed
-	State_STATE_UNKNOWN     State = 5
+	State_STATE_RUNNING     State = 1 // Session is currently running
+	State_STATE_FAILED      State = 2 // Session failed
 )
 
 // Enum value maps for State.
 var (
 	State_name = map[int32]string{
 		0: "STATE_UNSPECIFIED",
-		1: "STATE_STARTING",
-		2: "STATE_RUNNING",
-		3: "STATE_COMPLETED",
-		4: "STATE_FAILED",
-		5: "STATE_UNKNOWN",
+		1: "STATE_RUNNING",
+		2: "STATE_FAILED",
 	}
 	State_value = map[string]int32{
 		"STATE_UNSPECIFIED": 0,
-		"STATE_STARTING":    1,
-		"STATE_RUNNING":     2,
-		"STATE_COMPLETED":   3,
-		"STATE_FAILED":      4,
-		"STATE_UNKNOWN":     5,
+		"STATE_RUNNING":     1,
+		"STATE_FAILED":      2,
 	}
 )
 
@@ -870,14 +861,11 @@ const file_proto_gar_proto_rawDesc = "" +
 	"\x15RegisterAgentResponse\"3\n" +
 	"\x16UnregisterAgentRequest\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\"\x19\n" +
-	"\x17UnregisterAgentResponse*\x7f\n" +
+	"\x17UnregisterAgentResponse*C\n" +
 	"\x05State\x12\x15\n" +
-	"\x11STATE_UNSPECIFIED\x10\x00\x12\x12\n" +
-	"\x0eSTATE_STARTING\x10\x01\x12\x11\n" +
-	"\rSTATE_RUNNING\x10\x02\x12\x13\n" +
-	"\x0fSTATE_COMPLETED\x10\x03\x12\x10\n" +
-	"\fSTATE_FAILED\x10\x04\x12\x11\n" +
-	"\rSTATE_UNKNOWN\x10\x052\xc8\x01\n" +
+	"\x11STATE_UNSPECIFIED\x10\x00\x12\x11\n" +
+	"\rSTATE_RUNNING\x10\x01\x12\x10\n" +
+	"\fSTATE_FAILED\x10\x022\xc8\x01\n" +
 	"\fAgentService\x12-\n" +
 	"\aProcess\x12\x0e.proto.Content\x1a\x0e.proto.Content(\x010\x01\x12C\n" +
 	"\x0fStreamLifecycle\x12\x15.proto.LifecycleEvent\x1a\x15.proto.LifecycleEvent(\x010\x01\x12D\n" +

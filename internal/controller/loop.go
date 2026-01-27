@@ -111,9 +111,6 @@ func (e *LoopExecutor) Resume(ctx context.Context, sessionID string) error {
 	}
 
 	// Check if session is in a resumable state
-	if session.State == proto.State_STATE_COMPLETED {
-		return fmt.Errorf("session already completed")
-	}
 	if session.State == proto.State_STATE_FAILED {
 		return fmt.Errorf("session failed and cannot be resumed")
 	}
@@ -147,7 +144,6 @@ func (e *LoopExecutor) runLoop(ctx context.Context, session *Session) error {
 
 		// If no task, we're done
 		if task == nil {
-			session.SetState(proto.State_STATE_COMPLETED)
 			return nil
 		}
 
@@ -178,7 +174,6 @@ func (e *LoopExecutor) runLoop(ctx context.Context, session *Session) error {
 
 		// If goal achieved, complete the session
 		if goalAchieved {
-			session.SetState(proto.State_STATE_COMPLETED)
 			return nil
 		}
 	}

@@ -43,7 +43,7 @@ func (s *Server) TriggerSession(req *proto.TriggerSessionRequest, stream grpc.Se
 	}
 
 	if err := stream.Send(&proto.TriggerSessionResponse{
-		State:     proto.State_STATE_STARTING,
+		State:     proto.State_STATE_RUNNING,
 		SessionId: sessionID,
 	}); err != nil {
 		return err
