@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/google/gar/agent"
+	"github.com/google/gar/internal/config"
 )
 
 // AgentType represents the type of agent (local or remote).
@@ -84,18 +85,18 @@ func (r *Registry) RegisterLocal(a agent.Agent, name, description string, metada
 }
 
 // RegisterRemote registers a remote agent by creating a remote agent client.
-func (r *Registry) RegisterRemote(id, name, description, address string, metadata map[string]string) error {
+func (r *Registry) RegisterRemote(cfg config.RemoteAgentConfig) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	if _, exists := r.agents[id]; exists {
-		return fmt.Errorf("agent %s already registered", id)
+	if _, exists := r.agents[cfg.ID]; exists {
+		return fmt.Errorf("agent %s already registered", cfg.ID)
 	}
 
 	// Create remote agent client
 	remoteAgent, err := agent.NewRemoteAgent(agent.RemoteAgentConfig{
-		ID:         id,
-		Address:    address,
+		ID:         cfg.ID,
+		Address:    cfg.Address,
 		Reconnect:  true,
 		MaxRetries: 3,
 	})
@@ -103,15 +104,15 @@ func (r *Registry) RegisterRemote(id, name, description, address string, metadat
 		return fmt.Errorf("failed to create remote agent: %w", err)
 	}
 
-	r.agents[id] = remoteAgent
-	r.agentInfo[id] = &AgentInfo{
-		ID:              id,
-		Name:            name,
-		Description:     description,
+	r.agents[cfg.ID] = remoteAgent
+	r.agentInfo[cfg.ID] = &AgentInfo{
+		ID:              cfg.ID,
+		Name:            cfg.Name,
+		Description:     cfg.Description,
 		Type:            AgentTypeRemote,
 		Healthy:         false, // Will be checked by health monitor
 		LastHealthCheck: time.Time{},
-		Metadata:        metadata,
+		Metadata:        cfg.Metadata,
 	}
 
 	return nil

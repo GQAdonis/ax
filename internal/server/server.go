@@ -11,6 +11,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"github.com/google/gar/internal/config"
 	"github.com/google/gar/internal/controller"
 	"github.com/google/gar/proto"
 )
@@ -104,7 +105,13 @@ func (s *Server) RegisterAgent(ctx context.Context, req *proto.RegisterAgentRequ
 	registry := s.controller.Registry()
 
 	// All registered agents are remote
-	err := registry.RegisterRemote(req.AgentId, req.Name, req.Description, req.Address, req.Metadata)
+	err := registry.RegisterRemote(config.RemoteAgentConfig{
+		ID:          req.AgentId,
+		Name:        req.Name,
+		Description: req.Description,
+		Address:     req.Address,
+		Metadata:    req.Metadata,
+	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to register agent: %w", err)
 	}
