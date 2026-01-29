@@ -20,7 +20,6 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"sync"
 
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -35,7 +34,6 @@ import (
 type Server struct {
 	proto.UnimplementedGARServiceServer
 
-	mu         sync.RWMutex
 	controller *controller.Controller
 }
 
@@ -48,11 +46,9 @@ func New(c *controller.Controller) *Server {
 
 // TriggerSession triggers a new agentic loop session with streaming responses.
 func (s *Server) TriggerSession(req *proto.TriggerSessionRequest, stream grpc.ServerStreamingServer[proto.TriggerSessionResponse]) error {
-	s.mu.Lock()
 	sessionID := req.SessionId
 	inputs := req.Inputs
 	checkpointID := req.CheckpointId
-	s.mu.Unlock()
 
 	if sessionID == "" {
 		return fmt.Errorf("session_id is required")
@@ -83,9 +79,6 @@ func (s *Server) TriggerSession(req *proto.TriggerSessionRequest, stream grpc.Se
 
 // GetSession retrieves session details.
 func (s *Server) GetSession(ctx context.Context, req *proto.GetSessionRequest) (*proto.GetSessionResponse, error) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-
 	if req.SessionId == "" {
 		return nil, fmt.Errorf("session_id is required")
 	}
@@ -109,9 +102,6 @@ func (s *Server) GetSession(ctx context.Context, req *proto.GetSessionRequest) (
 
 // RegisterAgent registers a new remote agent with the dispatcher.
 func (s *Server) RegisterAgent(ctx context.Context, req *proto.RegisterAgentRequest) (*proto.RegisterAgentResponse, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
 	if req.AgentId == "" {
 		return nil, fmt.Errorf("agent_id is required")
 	}
@@ -140,9 +130,6 @@ func (s *Server) RegisterAgent(ctx context.Context, req *proto.RegisterAgentRequ
 // UnregisterAgent removes a remote agent from the dispatcher.
 // Local agents cannot be unregistered via this API.
 func (s *Server) UnregisterAgent(ctx context.Context, req *proto.UnregisterAgentRequest) (*proto.UnregisterAgentResponse, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
 	if req.AgentId == "" {
 		return nil, fmt.Errorf("agent_id is required")
 	}
