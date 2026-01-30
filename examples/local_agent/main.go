@@ -74,7 +74,8 @@ func main() {
 		},
 	}
 
-	// Trigger a session
+	// Trigger a session. Alternatively, controller can be used
+	// with the server package to expose a gRPC server.
 	sessionID := uuid.New().String()
 	log.Printf("Session ID: %s\n", sessionID)
 
