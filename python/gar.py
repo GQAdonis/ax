@@ -33,13 +33,12 @@ class Agent:
                 yield Content(role="assistant", type="text",
                              mimetype="text/plain", data=f"Processed: {content.data}")
 
-        agent = Agent(agent_id="my-agent", process_func=process)
+        agent = Agent(process_func=process)
         agent.serve(port=50051)
     """
 
     def __init__(
         self,
-        agent_id: str,
         process_func: Callable,
         health_check_func: Optional[Callable] = None
     ):
@@ -47,11 +46,9 @@ class Agent:
         Initialize an agent.
 
         Args:
-            agent_id: Unique identifier for this agent
             process_func: Function that takes (session_id: str, inputs: list) and yields Content responses
             health_check_func: Optional function that returns (healthy: bool, message: str, metadata: dict)
         """
-        self.agent_id = agent_id
         self.process_func = process_func
         self.health_check_func = health_check_func
 
@@ -112,7 +109,7 @@ class Agent:
         )
         server.add_insecure_port(f'[::]:{port}')
         server.start()
-        print(f"Agent '{self.agent_id}' listening on port {port}")
+        print(f"Agent listening on port {port}")
 
         try:
             server.wait_for_termination()
@@ -123,7 +120,6 @@ class Agent:
 
 # Convenience function for quick agent creation
 def create_agent(
-    agent_id: str,
     process_func: Callable,
     health_check_func: Optional[Callable] = None,
     port: int = 50051
@@ -132,10 +128,9 @@ def create_agent(
     Create and start an agent in one call.
 
     Args:
-        agent_id: Unique identifier for this agent
         process_func: Function that takes (session_id: str, inputs: list) and yields Content responses
         health_check_func: Optional function that returns (healthy: bool, message: str, metadata: dict)
         port: Port to listen on (default: 50051)
     """
-    agent = Agent(agent_id, process_func, health_check_func)
+    agent = Agent(process_func, health_check_func)
     agent.serve(port=port)

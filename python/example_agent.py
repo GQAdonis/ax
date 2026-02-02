@@ -41,7 +41,6 @@ def health_check():
 
 if __name__ == "__main__":
     agent = Agent(
-        agent_id="python-agent",
         process_func=process,
         health_check_func=health_check
     )
