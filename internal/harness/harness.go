@@ -43,8 +43,8 @@ type Execution interface {
 	// It blocks until the current turn completes or fails.
 	Run(ctx context.Context, handler Handler) error
 
-	// Queue enqueues a new input message to be processed in the next turn.
-	Queue(ctx context.Context, msg *proto.Message) error
+	// Queue enqueues new input messages to be processed in the next turn.
+	Queue(ctx context.Context, msg ...*proto.Message) error
 
 	// ID returns the unique execution session ID.
 	ID() string
