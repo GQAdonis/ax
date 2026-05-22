@@ -27,8 +27,9 @@ import (
 
 // Harness implements the harness.Harness interface for testing purposes.
 type Harness struct {
-	mu     sync.Mutex
-	Active map[string]*Execution
+	mu             sync.Mutex
+	Active         map[string]*Execution
+	DefaultRunFunc func(ctx context.Context, execID string, handler harness.Handler) error
 }
 
 // New creates a new Harness instance.
@@ -48,6 +49,7 @@ func (h *Harness) Start(ctx context.Context, conversationID string) (harness.Exe
 		harness:        h,
 		conversationID: conversationID,
 		id:             execID,
+		RunFunc:        h.DefaultRunFunc,
 	}
 	h.Active[execID] = exec
 	return exec, nil
@@ -59,9 +61,10 @@ type Execution struct {
 	conversationID string
 	id             string
 
-	mu     sync.Mutex
-	queued []*proto.Message
-	closed bool
+	mu      sync.Mutex
+	queued  []*proto.Message
+	closed  bool
+	RunFunc func(ctx context.Context, execID string, handler harness.Handler) error
 }
 
 // ID implements harness.Execution.
@@ -78,8 +81,12 @@ func (e *Execution) Queue(ctx context.Context, msg ...*proto.Message) error {
 }
 
 // Run implements harness.Execution.
-// It generates a "Hello world" message and completes the turn.
+// It uses the configured RunFunc, or falls back to generating a "Hello world" message.
 func (e *Execution) Run(ctx context.Context, handler harness.Handler) error {
+	if e.RunFunc != nil {
+		return e.RunFunc(ctx, e.id, handler)
+	}
+
 	msg := &proto.Message{
 		Role: "assistant",
 		Content: &proto.Content{

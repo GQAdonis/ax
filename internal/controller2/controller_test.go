@@ -18,20 +18,12 @@ import (
 	"context"
 	"testing"
 
-	"github.com/google/ax/internal/agent"
 	"github.com/google/ax/internal/controller/executor"
 	"github.com/google/ax/internal/controller/executor/executortest"
 	"github.com/google/ax/internal/harness"
+	"github.com/google/ax/internal/harness/harnesstest"
 	"github.com/google/ax/proto"
 )
-
-type dummyAgent struct{}
-
-func (a *dummyAgent) Connect(ctx context.Context, conversationID string, execID string, start *proto.AgentStart, e agent.Executor, o agent.OutputHandler) error {
-	return nil
-}
-
-func (a *dummyAgent) Close() error { return nil }
 
 func TestController2_ExecHelloWorld(t *testing.T) {
 	ctx := context.Background()
@@ -91,7 +83,7 @@ func TestController2_ExecAntigravityFallback(t *testing.T) {
 
 	log := &executortest.MemoryEventLog{}
 	reg := NewRegistry()
-	
+
 	// Build and register harness with bad path to trigger build-time fallback
 	badHarness := BuildHarness(ctx, "antigravity", harness.HarnessConfig{
 		AntigravityScriptPath: "non-existent-script.py",
@@ -201,4 +193,128 @@ func TestController2_ExecRuntimeFallback(t *testing.T) {
 	}
 }
 
+func TestController2_Exec_ResumptionAndIDGeneration(t *testing.T) {
+	t.Skip("Feature Gap: Resumption and Event Logging are not yet implemented in controller2")
 
+	// This test is sketched out for when the features are implemented.
+	ctx := context.Background()
+	cid := "test-conv"
+
+	inputs := []*proto.Message{
+		{
+			Role: "user",
+			Content: &proto.Content{
+				Type: &proto.Content_Text{
+					Text: &proto.TextContent{Text: "hello"},
+				},
+			},
+		},
+	}
+
+	log := &executortest.MemoryEventLog{}
+	reg := NewRegistry()
+	mockHarness := harnesstest.New()
+	reg.RegisterHarness("mock-agent", mockHarness)
+
+	c, err := New(ctx, Config{
+		Registry: reg,
+		EventLogBuilder: func() (executor.EventLog, error) {
+			return log, nil
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	err = c.Exec(ctx, &proto.ExecRequest{
+		ConversationId: cid,
+		Inputs:         inputs,
+		AgentId:        "mock-agent",
+	}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Verify that events were logged and exec ID was generated.
+	// ...
+}
+
+func TestController2_Exec_LastSeq_Empty(t *testing.T) {
+	t.Skip("Feature Gap: History playback and LastSeq are not yet implemented in controller2")
+}
+
+func TestController2_Exec_LastSeq(t *testing.T) {
+	t.Skip("Feature Gap: History playback and LastSeq are not yet implemented in controller2")
+}
+
+func TestController2_Exec_LastSeq_NotFound(t *testing.T) {
+	t.Skip("Feature Gap: History playback and LastSeq are not yet implemented in controller2")
+}
+
+func TestController2_Exec_WaitsForConfirmation(t *testing.T) {
+	t.Skip("Feature Gap: Resumption and Confirmation handling are not yet implemented in controller2")
+
+	// Sketch for when implemented:
+	ctx := context.Background()
+	cid := "test-conv-conf"
+
+	log := &executortest.MemoryEventLog{}
+	reg := NewRegistry()
+	mockHarness := harnesstest.New()
+
+	// Configure mock harness to return a confirmation question on first Run
+	mockHarness.DefaultRunFunc = func(ctx context.Context, execID string, handler harness.Handler) error {
+		questionMsg := &proto.Message{
+			Role: "assistant",
+			Content: &proto.Content{
+				Type: &proto.Content_Confirmation{
+					Confirmation: &proto.ConfirmationContent{
+						Question: "Are you sure?",
+					},
+				},
+			},
+		}
+		if err := handler.OnMessage(ctx, execID, questionMsg); err != nil {
+			return err
+		}
+		return handler.OnComplete(ctx, execID)
+	}
+	reg.RegisterHarness("mock-agent", mockHarness)
+
+	c, err := New(ctx, Config{
+		Registry: reg,
+		EventLogBuilder: func() (executor.EventLog, error) {
+			return log, nil
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	var msgs []*proto.Message
+	handler := ExecHandler(func(resp *proto.ExecResponse) error {
+		msgs = append(msgs, resp.Outputs...)
+		return nil
+	})
+
+	err = c.Exec(ctx, &proto.ExecRequest{
+		ConversationId: cid,
+		AgentId:        "mock-agent",
+	}, handler)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(msgs) != 1 {
+		t.Fatalf("expected 1 message, got %d", len(msgs))
+	}
+	if msgs[0].GetContent().GetConfirmation().GetQuestion() != "Are you sure?" {
+		t.Fatalf("expected 'Are you sure?', got %v", msgs[0].GetContent().GetConfirmation().GetQuestion())
+	}
+}
+
+func TestController2_Exec_InternalOnly(t *testing.T) {
+	t.Skip("Feature Gap: Event Logging and InternalOnly filtering are not yet implemented in controller2")
+}
