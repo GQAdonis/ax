@@ -21,7 +21,6 @@ import (
 	"fmt"
 
 	"github.com/google/ax/internal/controller/executor"
-	"github.com/google/ax/internal/harness/harnesstest"
 	"github.com/google/ax/proto"
 	"github.com/google/uuid"
 )
@@ -31,13 +30,15 @@ type ExecHandler func(resp *proto.ExecResponse) error
 // Controller is the main controller that coordinates all components.
 // It acts as a single-writer system for managing agentic loops.
 type Controller struct {
-	registry       *Registry
-	eventLog       executor.EventLog
+	registry              *Registry
+	eventLog              executor.EventLog
+	antigravityScriptPath string
 }
 
 // Config configures the controller.
 type Config struct {
-	EventLogBuilder executor.EventLogBuilder
+	EventLogBuilder       executor.EventLogBuilder
+	AntigravityScriptPath string
 }
 
 // New creates a new controller instance.
@@ -54,8 +55,9 @@ func New(ctx context.Context, cfg Config) (*Controller, error) {
 	}
 
 	return &Controller{
-		registry:       registry,
-		eventLog:       eventLog,
+		registry:              registry,
+		eventLog:              eventLog,
+		antigravityScriptPath: cfg.AntigravityScriptPath,
 	}, nil
 }
 
@@ -70,7 +72,11 @@ func (d *Controller) Exec(ctx context.Context, req *proto.ExecRequest, handler E
 	// TODO(jbd): Resume an incomplete execution if there exists one.
 	// TODO(jbd): Enable bringing a remote harness that implements HarnessService.
 
-	h := harnesstest.New()
+	harnessType := "test"
+	if req.AgentId == "antigravity" {
+		harnessType = "antigravity"
+	}
+	h := BuildHarness(ctx, harnessType, d.antigravityScriptPath)
 	exec, err := h.Start(ctx, req.ConversationId)
 	if err != nil {
 		return fmt.Errorf("failed to start harness session: %w", err)

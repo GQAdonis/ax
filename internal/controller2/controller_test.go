@@ -81,3 +81,57 @@ func TestController2_ExecHelloWorld(t *testing.T) {
 		t.Errorf("expected 'Hello world' output text response, got %q", gotText)
 	}
 }
+
+func TestController2_ExecAntigravityFallback(t *testing.T) {
+	ctx := context.Background()
+	cid := "test-conversation-id"
+
+	log := &executortest.MemoryEventLog{}
+	c, err := New(ctx, Config{
+		EventLogBuilder: func() (executor.EventLog, error) {
+			return log, nil
+		},
+		AntigravityScriptPath: "non-existent-script.py", // Force fallback
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	var outputs []*proto.Message
+	handler := ExecHandler(func(resp *proto.ExecResponse) error {
+		outputs = append(outputs, resp.Outputs...)
+		return nil
+	})
+
+	inputs := []*proto.Message{
+		{
+			Role: "user",
+			Content: &proto.Content{
+				Type: &proto.Content_Text{
+					Text: &proto.TextContent{Text: "Trigger prompt"},
+				},
+			},
+		},
+	}
+
+	// Request "antigravity" agent
+	err = c.Exec(ctx, &proto.ExecRequest{
+		ConversationId: cid,
+		Inputs:         inputs,
+		AgentId:        "antigravity",
+	}, handler)
+	if err != nil {
+		t.Fatalf("Controller2.Exec failed: %v", err)
+	}
+
+	if len(outputs) != 1 {
+		t.Fatalf("expected exactly 1 output message, got %d", len(outputs))
+	}
+
+	gotText := outputs[0].GetContent().GetText().GetText()
+	if gotText != "Hello world" {
+		t.Errorf("expected 'Hello world' output text response due to fallback, got %q", gotText)
+	}
+}
+
