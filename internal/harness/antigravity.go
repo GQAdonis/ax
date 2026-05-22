@@ -41,6 +41,17 @@ func NewAntigravityHarness(scriptPath string) *AntigravityHarness {
 	}
 }
 
+// AntigravityHarnessBuilder builds an AntigravityHarness using HarnessConfig.
+type AntigravityHarnessBuilder struct {
+	Config HarnessConfig
+}
+
+// Build constructs the AntigravityHarness.
+func (b *AntigravityHarnessBuilder) Build() Harness {
+	return NewAntigravityHarness(b.Config.AntigravityScriptPath)
+}
+
+
 // Start implements Harness.Start.
 func (h *AntigravityHarness) Start(ctx context.Context, conversationID string) (Execution, error) {
 	return &antigravityExecution{

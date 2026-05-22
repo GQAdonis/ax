@@ -25,7 +25,7 @@ import (
 )
 
 // BuildHarness builds a harness based on the requested type, with fallback to test harness.
-func BuildHarness(ctx context.Context, harnessType string, scriptPath string) harness.Harness {
+func BuildHarness(ctx context.Context, harnessType string, cfg harness.HarnessConfig) harness.Harness {
 	switch harnessType {
 	case "antigravity":
 		// Check if python3 is available
@@ -34,6 +34,7 @@ func BuildHarness(ctx context.Context, harnessType string, scriptPath string) ha
 			return harnesstest.New()
 		}
 		// Check if script exists
+		scriptPath := cfg.AntigravityScriptPath
 		if scriptPath == "" {
 			scriptPath = "examples/antigravity_agent/agent.py"
 		}
@@ -42,7 +43,13 @@ func BuildHarness(ctx context.Context, harnessType string, scriptPath string) ha
 			return harnesstest.New()
 		}
 		log.Printf("Using Antigravity harness with script: %s", scriptPath)
-		return harness.NewAntigravityHarness(scriptPath)
+
+		builder := &harness.AntigravityHarnessBuilder{
+			Config: harness.HarnessConfig{
+				AntigravityScriptPath: scriptPath,
+			},
+		}
+		return builder.Build()
 	default:
 		log.Printf("Using default test harness")
 		return harnesstest.New()

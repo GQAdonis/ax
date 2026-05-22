@@ -21,6 +21,7 @@ import (
 	"github.com/google/ax/internal/agent"
 	"github.com/google/ax/internal/controller/executor"
 	"github.com/google/ax/internal/controller/executor/executortest"
+	"github.com/google/ax/internal/harness"
 	"github.com/google/ax/proto"
 )
 
@@ -91,7 +92,9 @@ func TestController2_ExecAntigravityFallback(t *testing.T) {
 		EventLogBuilder: func() (executor.EventLog, error) {
 			return log, nil
 		},
-		AntigravityScriptPath: "non-existent-script.py", // Force fallback
+		HarnessConfig: harness.HarnessConfig{
+			AntigravityScriptPath: "non-existent-script.py", // Force fallback
+		},
 	})
 	if err != nil {
 		t.Fatal(err)
