@@ -39,6 +39,17 @@ type RegistryConfig struct {
 	RemoteAgents    []RemoteAgentConfig    `yaml:"remote_agents,omitempty"`
 	ColabAgents     []ColabAgentConfig     `yaml:"colab_agents,omitempty"`
 	SubstrateAgents []SubstrateAgentConfig `yaml:"substrate_agents,omitempty"`
+	Harnesses       []HarnessConfig        `yaml:"harnesses,omitempty"`
+}
+
+type HarnessConfig struct {
+	ID          string            `yaml:"id"`
+	Type        string            `yaml:"type"` // "antigravity"
+	Antigravity AntigravityConfig `yaml:"antigravity,omitempty"`
+}
+
+type AntigravityConfig struct {
+	ScriptPath string `yaml:"script_path"`
 }
 
 // ATEConfig configures the ATE integration.
