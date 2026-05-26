@@ -435,3 +435,5 @@ regarding isolation, resumption and job scheduling.
 ## License
 
 Apache 2.0
+
+<!-- Added a line to the README per user request. -->
